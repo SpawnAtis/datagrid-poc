@@ -1,0 +1,41 @@
+{
+  // These tasks will run in order when initializing your CodeSandbox project.
+  "setupTasks": [
+    {
+      "name": "Installing Dependencies",
+      "command": "pnpm install"
+    }
+  ],
+
+  // These tasks can be run from CodeSandbox. Running one will open a log in the app.
+  "tasks": {
+    "dev": {
+      "name": "dev",
+      "command": "pnpm dev",
+      "runAtStart": true,
+      "preview": {
+        "port": 5174
+      }
+    },
+    "dev:react": {
+      "name": "dev:react",
+      "command": "pnpm dev:react",
+      "runAtStart": false
+    },
+    "dev:vue": {
+      "name": "dev:vue",
+      "command": "pnpm dev:vue",
+      "runAtStart": false
+    },
+    "dev:overview": {
+      "name": "dev:overview",
+      "command": "pnpm dev:overview",
+      "runAtStart": false
+    },
+    "install:all": {
+      "name": "install:all",
+      "command": "pnpm install:all",
+      "runAtStart": false
+    }
+  }
+}
