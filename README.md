@@ -46,9 +46,6 @@ Dev server: http://localhost:5173 (default)
 
 ## Notes
 
-- Row Grouping/Expansion is an AG Grid Enterprise feature. Community edition cannot provide native collapsible groups. Workarounds are possible but limited; see `docs/ag-grid-poc-report.md`.
+- Row Grouping/Expansion is an AG Grid Enterprise feature. Community edition cannot provide native collapsible groups. Workarounds are possible, but limited; see `docs/ag-grid-poc-report.md`.
 
-## Next steps
-
-- Optional: add CSV export, column pinning, and server-side row model examples
-- If native grouping is required, evaluate AG Grid Enterprise
+- If native grouping is required -> AG Grid Enterprise

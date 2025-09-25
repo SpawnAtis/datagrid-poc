@@ -2,9 +2,9 @@
 import { ref, computed, watch } from 'vue'
 import { AgGridVue } from 'ag-grid-vue3'
 
-// Theme and grid base styles
-import 'ag-grid-community/styles/ag-grid.css'
-import 'ag-grid-community/styles/ag-theme-quartz.css'
+
+import { ModuleRegistry, AllCommunityModule, themeQuartz } from 'ag-grid-community'
+ModuleRegistry.registerModules([AllCommunityModule])
 
 type Person = {
   id: number
@@ -12,7 +12,7 @@ type Person = {
   email: string
   role: 'Admin' | 'Editor' | 'Viewer'
   status: 'Active' | 'Invited' | 'Suspended'
-  createdAt: string // ISO
+  createdAt: string 
 }
 
 const rowData = ref<Person[]>(
@@ -36,16 +36,19 @@ const defaultColDef = computed(() => ({
   filter: true,
   floatingFilter: true,
   resizable: true,
-  minWidth: 120
+  minWidth: 120,
+  flex: 1,
 }))
 
-// Actions: implemented via cellRenderer with buttons and onCellClicked handler
+
+
 const columnDefs = ref([
   { field: 'id', headerName: 'ID', width: 90, filter: 'agNumberColumnFilter' },
   { field: 'name', headerName: 'Name' },
   { field: 'email', headerName: 'Email', minWidth: 220 },
-  { field: 'role', headerName: 'Role', filter: 'agSetColumnFilter' },
-  { field: 'status', headerName: 'Status', filter: 'agSetColumnFilter' },
+  
+  { field: 'role', headerName: 'Role', filter: 'agTextColumnFilter' },
+  { field: 'status', headerName: 'Status', filter: 'agTextColumnFilter' },
   {
     field: 'createdAt',
     headerName: 'Created',
@@ -69,32 +72,40 @@ const columnDefs = ref([
 
 const pageSize = ref(10)
 
-// Toolbar and grid state
+
 const quickFilter = ref('')
 const wrapText = ref(false)
 const density = ref<'compact' | 'normal' | 'comfortable'>('normal')
+
+const mergedDefaultColDef = computed(() => ({
+  ...defaultColDef.value,
+  wrapText: wrapText.value,
+  autoHeight: wrapText.value,
+}))
 const rowHeight = computed(() => (density.value === 'compact' ? 28 : density.value === 'comfortable' ? 44 : 36))
 
 const loading = ref(false)
 const error = ref<string | null>(null)
 
-// Grid API refs
+
 const gridApi = ref<any>(null)
 const columnApi = ref<any>(null)
 
 function onGridReady(params: any) {
   gridApi.value = params.api
   columnApi.value = params.columnApi
+  console.log('grid-ready displayed rows:', params.api.getDisplayedRowCount())
   if (!rowData.value.length) params.api.showNoRowsOverlay()
 }
 
 watch(rowData, (rows) => {
   if (!gridApi.value) return
+  console.log('rowData changed, displayed rows:', gridApi.value.getDisplayedRowCount())
   if (!rows.length) gridApi.value.showNoRowsOverlay()
   else gridApi.value.hideOverlay()
 })
 
-// Actions handlers via cell click
+
 function onCellClicked(event: any) {
   if (event.colDef.field !== 'actions') return
   const target = event.event?.target as HTMLElement | null
@@ -108,7 +119,7 @@ function onCellClicked(event: any) {
   }
 }
 
-// Persistence
+
 function saveState() {
   if (!columnApi.value) return
   const state = columnApi.value.getColumnState()
@@ -122,7 +133,7 @@ function restoreState() {
   columnApi.value.applyColumnState({ state: JSON.parse(raw), applyOrder: true })
 }
 
-// Show/hide columns via checkboxes
+
 const visibleCols = ref<Record<string, boolean>>({
   name: true,
   email: true,
@@ -135,7 +146,7 @@ function toggleColumn(key: string) {
   columnApi.value?.setColumnVisible(key, visibleCols.value[key])
 }
 
-// Loading and error simulations
+
 async function simulateLoading() {
   error.value = null
   loading.value = true
@@ -193,18 +204,31 @@ function clearError() {
       </span>
     </div>
 
-    <div class="ag-theme-quartz" style="height: 540px; width: 100%; margin: 0 auto">
+    <div style="height: 540px; width: 1000px; margin: 0 auto; background:#ffffff">
       <AgGridVue
         :rowData="rowData"
         :columnDefs="columnDefs"
-        :defaultColDef="{...defaultColDef, wrapText: wrapText, autoHeight: wrapText}"
+        :defaultColDef="mergedDefaultColDef"
+        :theme="themeQuartz.withParams({
+          
+          backgroundColor: '#ffffff',
+          foregroundColor: '#111827',
+          
+          headerBackgroundColor: '#0b5cff',
+          headerTextColor: '#ffffff',
+          
+          rowHoverColor: '#f0f6ff',
+          selectedRowBackgroundColor: '#eef2ff',
+          
+          fontSize: 13,
+        })"
         :pagination="true"
         :paginationPageSize="pageSize"
         :paginationPageSizeSelector="[10, 20, 50]"
-        rowSelection="single"
-        :suppressRowClickSelection="true"
+        :rowSelection="{ mode: 'singleRow', enableClickSelection: false }"
         :quickFilterText="quickFilter"
         :rowHeight="rowHeight"
+        domLayout="autoHeight"
         :suppressMultiSort="false"
         :enableCellTextSelection="true"
         :suppressDragLeaveHidesColumns="true"
@@ -228,12 +252,5 @@ function clearError() {
   justify-content: center;
   margin-bottom: 12px;
 }
-.cols {
-  display: inline-flex;
-  gap: 8px;
-  align-items: center;
-}
-.error {
-  color: #dc2626;
-}
+  
 </style>

@@ -6,8 +6,6 @@ function computeSandboxLinks() {
   const overviewPort = '5174'
 
   const { protocol, host } = window.location
-  // Attempt to replace the port-like suffix in the subdomain used by CodeSandbox containers, e.g. -5174
-  // Example host: <hash>-5174.app.codesandbox.io
   let reactUrl = `${protocol}//localhost:${reactPort}`
   let vueUrl = `${protocol}//localhost:${vuePort}`
 
@@ -26,7 +24,7 @@ function computeSandboxLinks() {
 }
 
 async function loadMarkdown() {
-  const res = await fetch('/ag-grid-poc-report.md').catch(() => null)
+  const res = await fetch('/poc-report.md').catch(() => null)
   let md = '# POC Report\n\nUnable to load markdown file.'
   if (res && res.ok) {
     md = await res.text()
